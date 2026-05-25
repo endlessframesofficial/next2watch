@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import '../../../../core/router/route_names.dart';
 import '../../../../core/widgets/movie_card.dart';
 import '../providers/home_providers.dart';
 
@@ -12,6 +14,13 @@ class HomeTab extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent, // Inherits from dashboard
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.push(RoutePaths.addMovie);
+        },
+        backgroundColor: Colors.orange,
+        child: const Icon(Icons.add),
+      ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

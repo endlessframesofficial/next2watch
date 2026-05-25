@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "294684977510",
+    "project_id": "next2watch-prod",
+    "storage_bucket": "next2watch-prod.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294684977510:android:9d394c8fd71105951280a7",
+        "android_client_info": {
+          "package_name": "com.example.next2watch"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAWLG-GL24rA9CncS87QWMZ5ITGZB6dAPo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
