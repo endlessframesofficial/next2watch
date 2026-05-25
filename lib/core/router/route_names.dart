@@ -3,6 +3,7 @@ class RouteNames {
   static const dashboard = 'dashboard';
   static const movieDetails = 'movie_details';
   static const addMovie = 'add_movie';
+  static const addCollection = 'add_collection';
   // Add other routes here as needed
 }
 
@@ -11,4 +12,5 @@ class RoutePaths {
   static const dashboard = '/';
   static const movieDetails = '/movie/:id';
   static const addMovie = '/add-movie';
+  static const addCollection = '/add-collection';
 }

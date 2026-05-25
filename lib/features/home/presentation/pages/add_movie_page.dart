@@ -20,13 +20,6 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
   final _languageController = TextEditingController();
   final _ratingController = TextEditingController();
   final _genresController = TextEditingController();
-  final _moodsController = TextEditingController();
-  final _collectionsController = TextEditingController();
-  final _ottPlatformController = TextEditingController();
-  final _ottReleaseDateController = TextEditingController();
-
-  bool _isTrending = false;
-  bool _isEditorsPick = false;
 
   @override
   void dispose() {
@@ -37,15 +30,14 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
     _languageController.dispose();
     _ratingController.dispose();
     _genresController.dispose();
-    _moodsController.dispose();
-    _collectionsController.dispose();
-    _ottPlatformController.dispose();
-    _ottReleaseDateController.dispose();
     super.dispose();
   }
 
+  String _generateId(String title) {
+    return title.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9]+'), '_');
+  }
+
   void _submitForm() async {
-    // Form is always valid since all fields are optional
     if (_formKey.currentState!.validate()) {
       final yearText = _yearController.text.trim();
       final year = yearText.isNotEmpty ? int.tryParse(yearText) : null;
@@ -53,15 +45,27 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
       final ratingText = _ratingController.text.trim();
       final rating = ratingText.isNotEmpty ? double.tryParse(ratingText) : null;
       
-      // Parse comma separated lists
       final genres = _genresController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-      final moods = _moodsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
-      final collections = _collectionsController.text.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
 
       final movieData = <String, dynamic>{};
+      
+      final title = _titleController.text.trim();
+      if (title.isNotEmpty) {
+        movieData['title'] = title;
+        movieData['id'] = _generateId(title);
+      } else {
+        // If title is empty we can't generate an ID, but we have validation now or we can just fall back
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Title is required')));
+        return;
+      }
 
-      if (_titleController.text.trim().isNotEmpty) movieData['title'] = _titleController.text.trim();
-      if (_posterController.text.trim().isNotEmpty) movieData['poster'] = _posterController.text.trim();
+      if (_posterController.text.trim().isNotEmpty) {
+        var poster = _posterController.text.trim();
+        if (!poster.startsWith('/')) {
+          poster = '/$poster';
+        }
+        movieData['poster'] = poster;
+      }
       if (_overviewController.text.trim().isNotEmpty) movieData['overview'] = _overviewController.text.trim();
       
       if (year != null) movieData['year'] = year;
@@ -69,14 +73,6 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
       if (rating != null) movieData['rating'] = rating;
 
       if (genres.isNotEmpty) movieData['genres'] = genres;
-      if (moods.isNotEmpty) movieData['moods'] = moods;
-      if (collections.isNotEmpty) movieData['collections'] = collections;
-
-      if (_ottPlatformController.text.trim().isNotEmpty) movieData['ottPlatform'] = _ottPlatformController.text.trim();
-      if (_ottReleaseDateController.text.trim().isNotEmpty) movieData['ottReleaseDate'] = _ottReleaseDateController.text.trim();
-
-      movieData['isTrending'] = _isTrending;
-      movieData['isEditorsPick'] = _isEditorsPick;
 
       final success = await ref.read(addMovieProvider.notifier).addMovie(movieData);
 
@@ -111,12 +107,13 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
               children: [
                 TextFormField(
                   controller: _titleController,
-                  decoration: const InputDecoration(labelText: 'Title', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'Title *', border: OutlineInputBorder()),
+                  validator: (value) => value!.trim().isEmpty ? 'Title is required for ID generation' : null,
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _posterController,
-                  decoration: const InputDecoration(labelText: 'Poster (e.g. /premalu.jpg)', border: OutlineInputBorder()),
+                  decoration: const InputDecoration(labelText: 'Poster (e.g. premalu.jpg)', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -155,47 +152,6 @@ class _AddMoviePageState extends ConsumerState<AddMoviePage> {
                 TextFormField(
                   controller: _genresController,
                   decoration: const InputDecoration(labelText: 'Genres (comma separated)', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _moodsController,
-                  decoration: const InputDecoration(labelText: 'Moods (comma separated)', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _collectionsController,
-                  decoration: const InputDecoration(labelText: 'Collections (comma separated)', border: OutlineInputBorder()),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _ottPlatformController,
-                        decoration: const InputDecoration(labelText: 'OTT Platform', border: OutlineInputBorder()),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: TextFormField(
-                        controller: _ottReleaseDateController,
-                        decoration: const InputDecoration(labelText: 'OTT Release Date', border: OutlineInputBorder()),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                SwitchListTile(
-                  title: const Text('Is Trending'),
-                  value: _isTrending,
-                  onChanged: (val) => setState(() => _isTrending = val),
-                  contentPadding: EdgeInsets.zero,
-                ),
-                SwitchListTile(
-                  title: const Text('Is Editor\'s Pick'),
-                  value: _isEditorsPick,
-                  onChanged: (val) => setState(() => _isEditorsPick = val),
-                  contentPadding: EdgeInsets.zero,
                 ),
                 const SizedBox(height: 32),
                 ElevatedButton(

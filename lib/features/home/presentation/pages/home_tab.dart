@@ -10,16 +10,29 @@ class HomeTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final topRatedAsync = ref.watch(topRatedMoviesProvider);
+    final firestoreMoviesAsync = ref.watch(firestoreMoviesProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent, // Inherits from dashboard
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.push(RoutePaths.addMovie);
-        },
-        backgroundColor: Colors.orange,
-        child: const Icon(Icons.add),
+      floatingActionButton: Column(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            heroTag: 'addCollection',
+            onPressed: () => context.push(RoutePaths.addCollection),
+            backgroundColor: Colors.blueAccent,
+            icon: const Icon(Icons.playlist_add),
+            label: const Text('Add Collection'),
+          ),
+          const SizedBox(height: 16),
+          FloatingActionButton.extended(
+            heroTag: 'addMovie',
+            onPressed: () => context.push(RoutePaths.addMovie),
+            backgroundColor: Colors.orange,
+            icon: const Icon(Icons.movie),
+            label: const Text('Add Movie'),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -34,7 +47,7 @@ class HomeTab extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   const Text(
-                    'Top Rated Movies',
+                    'My Movies',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -56,8 +69,11 @@ class HomeTab extends ConsumerWidget {
             // Horizontal ListView for Top Rated Movies
             SizedBox(
               height: 240, // Fixed height for horizontal list
-              child: topRatedAsync.when(
+              child: firestoreMoviesAsync.when(
                 data: (movies) {
+                  if (movies.isEmpty) {
+                    return const Center(child: Text('No movies yet. Add some!'));
+                  }
                   return ListView.builder(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     scrollDirection: Axis.horizontal,
@@ -69,7 +85,7 @@ class HomeTab extends ConsumerWidget {
                         title: movie.title,
                         imageUrl: movie.fullPosterUrl,
                         rating: movie.voteAverage.toStringAsFixed(1),
-                        genre: 'Movie', // TMDb genres require mapping IDs to names, keeping simple for now
+                        genre: movie.genres.isNotEmpty ? movie.genres.first : 'Movie',
                       );
                     },
                   );

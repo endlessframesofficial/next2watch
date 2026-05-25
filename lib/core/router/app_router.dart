@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'route_names.dart';
 import '../../features/dashboard/presentation/pages/dashboard_page.dart';
 import '../../features/home/presentation/pages/add_movie_page.dart';
+import '../../features/home/presentation/pages/add_collection_page.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -18,6 +19,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: RoutePaths.addMovie,
         name: RouteNames.addMovie,
         builder: (context, state) => const AddMoviePage(),
+      ),
+      GoRoute(
+        path: RoutePaths.addCollection,
+        name: RouteNames.addCollection,
+        builder: (context, state) => const AddCollectionPage(),
       ),
       // Add more routes here
     ],
