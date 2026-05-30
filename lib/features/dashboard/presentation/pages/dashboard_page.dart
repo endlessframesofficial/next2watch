@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../discover/presentation/pages/discover_tab.dart';
 import '../../../home/presentation/pages/home_tab.dart';
+import '../../../ott/presentation/pages/ott_releases_page.dart';
 import '../../../profile/presentation/pages/profile_tab.dart';
-import '../../../watchlist/presentation/pages/watchlist_tab.dart';
+// import '../../../watchlist/presentation/pages/watchlist_tab.dart'; // removed per user request
 import '../providers/dashboard_provider.dart';
 
 
@@ -23,7 +24,7 @@ class DashboardPage extends ConsumerWidget {
         children: const [
           HomeTab(),
           DiscoverTab(),
-          WatchlistTab(),
+          OttReleasesPage(),
           ProfileTab(),
         ],
       ),
@@ -44,8 +45,8 @@ class DashboardPage extends ConsumerWidget {
             label: 'Discover',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bookmark),
-            label: 'Watchlist',
+            icon: Icon(Icons.tv),
+            label: 'OTT',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

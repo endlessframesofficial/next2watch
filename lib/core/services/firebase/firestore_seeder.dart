@@ -354,35 +354,82 @@ class FirestoreSeeder {
     },
   ];
 
+  // New OTT releases collection data
+  static const List<Map<String, dynamic>> _ottReleases = [
+    {
+      'id': 'narivetta',
+      'title': 'Narivetta',
+      'poster': 'https://example.com/narivetta.jpg',
+      'platform': 'SonyLIV',
+      'releaseDate': '2026-06-15',
+      'language': 'Malayalam',
+      'status': 'upcoming',
+    },
+    {
+      'id': 'patriot',
+      'title': 'Patriot',
+      'poster': 'https://example.com/patriot.jpg',
+      'platform': 'AmazonPrime',
+      'releaseDate': '2025-12-01',
+      'language': 'English',
+      'status': 'upcoming',
+    },
+    {
+      'id': 'drishyam_3',
+      'title': 'Drishyam 3',
+      'poster': 'https://example.com/drishyam3.jpg',
+      'platform': 'Netflix',
+      'releaseDate': '2025-11-20',
+      'language': 'Malayalam',
+      'status': 'upcoming',
+    },
+  ];
+
 
   static Future<void> clearAndSeedCollections() async {
-    print('[FirestoreSeeder] Starting clearing of collections...');
+    // print('[FirestoreSeeder] Starting clearing of collections...');
     final firestore = FirebaseFirestore.instance;
-    try {
-      final querySnapshot = await firestore.collection('collections').get();
-      for (final doc in querySnapshot.docs) {
-        await doc.reference.delete();
-        print('[FirestoreSeeder] Deleted collection document: ${doc.id}');
-      }
-      print('[FirestoreSeeder] Collections cleared successfully!');
-    } catch (e) {
-      print('[FirestoreSeeder] Error clearing collections collection: $e');
-      return;
-    }
+    // try {
+    //   final querySnapshot = await firestore.collection('collections').get();
+    //   for (final doc in querySnapshot.docs) {
+    //     await doc.reference.delete();
+    //     print('[FirestoreSeeder] Deleted collection document: ${doc.id}');
+    //   }
+    //   print('[FirestoreSeeder] Collections cleared successfully!');
+    // } catch (e) {
+    //   print('[FirestoreSeeder] Error clearing collections collection: $e');
+    //   return;
+    // }
 
-    print('[FirestoreSeeder] Starting collections seeding...');
-    for (final collection in _malayalamCollections) {
+    // print('[FirestoreSeeder] Starting collections seeding...');
+    // for (final collection in _malayalamCollections) {
+    //   // Existing collection seeding
+
+    //   try {
+    //     final id = collection['id'] as String;
+    //     final docRef = firestore.collection('collections').doc(id);
+
+    //     final dataToSave = Map<String, dynamic>.from(collection);
+    //     dataToSave['createdAt'] = FieldValue.serverTimestamp();
+
+    //     await docRef.set(dataToSave);
+    //     print('[FirestoreSeeder] Successfully seeded collection: ${collection['title']}');
+    //   } catch (e) {
+    //     print('[FirestoreSeeder] Error seeding collection ${collection['title']}: $e');
+    //   }
+    // }
+
+    // Seed OTT releases collection
+    for (final ott in _ottReleases) {
       try {
-        final id = collection['id'] as String;
-        final docRef = firestore.collection('collections').doc(id);
-
-        final dataToSave = Map<String, dynamic>.from(collection);
+        final id = ott['id'] as String;
+        final docRef = firestore.collection('ott_releases').doc(id);
+        final dataToSave = Map<String, dynamic>.from(ott);
         dataToSave['createdAt'] = FieldValue.serverTimestamp();
-
         await docRef.set(dataToSave);
-        print('[FirestoreSeeder] Successfully seeded collection: ${collection['title']}');
+        print('[FirestoreSeeder] Successfully seeded OTT release: ${ott['title']}');
       } catch (e) {
-        print('[FirestoreSeeder] Error seeding collection ${collection['title']}: $e');
+        print('[FirestoreSeeder] Error seeding OTT release ${ott['title']}: $e');
       }
     }
     print('[FirestoreSeeder] Collections seeding completed!');
