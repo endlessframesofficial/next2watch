@@ -1,5 +1,5 @@
 class Movie {
-  final int id;
+  final String id;
   final String title;
   final String posterPath;
   final double voteAverage;
@@ -17,7 +17,7 @@ class Movie {
 
   factory Movie.fromJson(Map<String, dynamic> json) {
     return Movie(
-      id: json['id'] ?? 0,
+      id: json['id']?.toString() ?? '',
       title: json['title'] ?? '',
       posterPath: json['poster'] ?? json['poster_path'] ?? '',
       voteAverage: (json['rating'] ?? json['vote_average'] ?? 0).toDouble(),

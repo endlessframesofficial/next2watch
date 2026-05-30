@@ -19,7 +19,7 @@ class AddMovieNotifier extends Notifier<bool> {
       
       final String id = dataToSave['id'] as String;
       
-      await firestore.collection('movies').doc(id).set(dataToSave);
+      await firestore.collection('malayalam_movies').doc(id).set(dataToSave);
       
       state = false;
       return true;
