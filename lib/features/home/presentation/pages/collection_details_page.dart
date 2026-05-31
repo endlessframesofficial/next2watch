@@ -17,21 +17,37 @@ class CollectionDetailsPage extends ConsumerStatefulWidget {
   ConsumerState<CollectionDetailsPage> createState() => _CollectionDetailsPageState();
 }
 
-class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
+class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> with TickerProviderStateMixin {
   late ScrollController _scrollController;
   double _scrollRatio = 0.0;
+  late AnimationController _revealController;
+
+  // Cinematic frames for the Marvel-style flipping intro
+  final List<String> _revealPosterUrls = [
+    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&fit=crop', // Cinema camera
+    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&fit=crop', // Theater seats
+    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=400&fit=crop', // Projector
+    'https://images.unsplash.com/photo-1542204172-e7052809a86e?w=400&fit=crop', // Movie reel
+    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&fit=crop', // Clapboard
+  ];
 
   @override
   void initState() {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_scrollListener);
+    _revealController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+    _revealController.forward();
   }
 
   @override
   void dispose() {
     _scrollController.removeListener(_scrollListener);
     _scrollController.dispose();
+    _revealController.dispose();
     super.dispose();
   }
 
@@ -128,39 +144,62 @@ class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
               ),
             ),
             flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (widget.collection.banner.isNotEmpty)
-                    Hero(
-                      tag: 'collection_banner_${widget.collection.id}',
-                      child: Image.network(
-                        widget.collection.banner,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            _buildFallbackBackground(context),
+              background: AnimatedBuilder(
+                animation: _revealController,
+                builder: (context, child) {
+                  final double progress = _revealController.value;
+                  final bool isResolved = progress >= 0.7;
+
+                  // Cycle through cinematic Unsplash image placeholders (12 frames per second)
+                  final int frameIndex = (progress * 12).floor() % _revealPosterUrls.length;
+                  final currentRevealFrame = _revealPosterUrls[frameIndex];
+
+                  return Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // 1. Base layer: flipping cinematic images
+                      if (!isResolved)
+                        Image.network(
+                          currentRevealFrame,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              _buildFallbackBackground(context),
+                        ),
+
+                      // 2. Final resolved image layer fading in
+                      Opacity(
+                        opacity: isResolved ? ((progress - 0.7) / 0.3).clamp(0.0, 1.0) : 0.0,
+                        child: widget.collection.banner.isNotEmpty
+                            ? Hero(
+                                tag: 'collection_banner_${widget.collection.id}',
+                                child: Image.network(
+                                  widget.collection.banner,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      _buildFallbackBackground(context),
+                                ),
+                              )
+                            : Hero(
+                                tag: 'collection_banner_${widget.collection.id}',
+                                child: _buildFallbackBackground(context),
+                              ),
                       ),
-                    )
-                  else
-                    Hero(
-                      tag: 'collection_banner_${widget.collection.id}',
-                      child: _buildFallbackBackground(context),
-                    ),
-                  // Dark gradient overlay for text and leading icon readability
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.4),
-                          Colors.transparent,
-                          Colors.black.withOpacity(0.8),
-                        ],
-                        stops: const [0.0, 0.5, 1.0],
+
+                      // 3. Dark gradient overlay for text and leading icon readability
+                      DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.4),
+                              Colors.transparent,
+                              Colors.black.withOpacity(0.8),
+                            ],
+                            stops: const [0.0, 0.5, 1.0],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
                   // Custom Positioned large title layout
                   Positioned(
                     left: 16,
@@ -226,9 +265,11 @@ class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
+        ),
+      ),
           moviesAsync.when(
             data: (movies) {
               if (movies.isEmpty) {
