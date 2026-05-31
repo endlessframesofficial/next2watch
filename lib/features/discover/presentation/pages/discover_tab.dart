@@ -222,57 +222,91 @@ class _CollectionGridCard extends StatefulWidget {
   State<_CollectionGridCard> createState() => _CollectionGridCardState();
 }
 
-class _CollectionGridCardState extends State<_CollectionGridCard> {
+class _CollectionGridCardState extends State<_CollectionGridCard> with SingleTickerProviderStateMixin {
   bool _isPressed = false;
+  late AnimationController _animController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 350),
+    );
+    _fadeAnimation = CurvedAnimation(parent: _animController, curve: Curves.easeIn);
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic));
+    _animController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final hasBanner = widget.collection.banner.isNotEmpty;
     final isFeatured = widget.collection.isFeatured;
 
-    return GestureDetector(
-      onTapDown: (_) => setState(() => _isPressed = true),
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      onTap: () => context.push(
-        RoutePaths.collectionDetails,
-        extra: widget.collection,
-      ),
-      child: AnimatedScale(
-        scale: _isPressed ? 0.96 : 1.0,
-        duration: const Duration(milliseconds: 120),
-        curve: Curves.easeOutCubic,
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.08),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-            ],
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: GestureDetector(
+          onTapDown: (_) => setState(() => _isPressed = true),
+          onTapUp: (_) => setState(() => _isPressed = false),
+          onTapCancel: () => setState(() => _isPressed = false),
+          onTap: () => context.push(
+            RoutePaths.collectionDetails,
+            extra: widget.collection,
           ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Banner Image Area on Top
-                AspectRatio(
-                  aspectRatio: 16 / 10,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      if (hasBanner)
-                        Image.network(
-                          widget.collection.banner,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => _buildFallbackBackground(),
-                        )
-                      else
-                        _buildFallbackBackground(),
+          child: AnimatedScale(
+            scale: _isPressed ? 0.96 : 1.0,
+            duration: const Duration(milliseconds: 120),
+            curve: Curves.easeOutCubic,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Banner Image Area on Top
+                    AspectRatio(
+                      aspectRatio: 16 / 10,
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          if (hasBanner)
+                            Hero(
+                              tag: 'collection_banner_${widget.collection.id}',
+                              child: Image.network(
+                                widget.collection.banner,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) => _buildFallbackBackground(),
+                              ),
+                            )
+                          else
+                            Hero(
+                              tag: 'collection_banner_${widget.collection.id}',
+                              child: _buildFallbackBackground(),
+                            ),
 
                       // Subtitle overlay gradient on the poster/banner image
                       Positioned.fill(
@@ -391,8 +425,10 @@ class _CollectionGridCardState extends State<_CollectionGridCard> {
           ),
         ),
       ),
-    );
-  }
+    ),
+  ),
+);
+}
 
   Widget _buildFallbackBackground() {
     return Container(

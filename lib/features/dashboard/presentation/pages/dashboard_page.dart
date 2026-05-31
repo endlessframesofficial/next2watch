@@ -8,17 +8,48 @@ import '../../../ott/presentation/pages/ott_releases_page.dart';
 import '../providers/dashboard_provider.dart';
 
 
-class DashboardPage extends ConsumerWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends ConsumerState<DashboardPage> {
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: ref.read(dashboardIndexProvider));
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final currentIndex = ref.watch(dashboardIndexProvider);
+
+    // Listen to changes in index and animate PageView
+    ref.listen<int>(dashboardIndexProvider, (previous, next) {
+      if (next != _pageController.page?.round()) {
+        _pageController.animateToPage(
+          next,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
+      }
+    });
 
     return Scaffold(
       drawer: const _AppDrawer(),
-      body: IndexedStack(
-        index: currentIndex,
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(), // Keep bottom nav taps clean
         children: const [
           HomeTab(),
           DiscoverTab(),

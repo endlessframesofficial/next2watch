@@ -65,14 +65,20 @@ class CollectionDetailsPage extends ConsumerWidget {
                 fit: StackFit.expand,
                 children: [
                   if (collection.banner.isNotEmpty)
-                    Image.network(
-                      collection.banner,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          _buildFallbackBackground(context),
+                    Hero(
+                      tag: 'collection_banner_${collection.id}',
+                      child: Image.network(
+                        collection.banner,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            _buildFallbackBackground(context),
+                      ),
                     )
                   else
-                    _buildFallbackBackground(context),
+                    Hero(
+                      tag: 'collection_banner_${collection.id}',
+                      child: _buildFallbackBackground(context),
+                    ),
                   // Dark gradient overlay for text and leading icon readability
                   DecoratedBox(
                     decoration: BoxDecoration(
