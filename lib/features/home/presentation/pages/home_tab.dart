@@ -67,13 +67,38 @@ class _HomeTabState extends ConsumerState<HomeTab> {
               color: Theme.of(context).colorScheme.onSurface,
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
-            title: Text(
-              'Next2Watch',
-              style: TextStyle(
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-                color: Colors.orange[800] ?? Colors.orange,
-              ),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Next',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Transform.rotate(
+                  angle: -10 * 3.141592653589793 / 180, // Tilted -10 degrees
+                  child: Text(
+                    '2',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: Colors.orange[800] ?? Colors.orange,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Text(
+                  'Watch',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+              ],
             ),
             centerTitle: false,
             bottom: PreferredSize(

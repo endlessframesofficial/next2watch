@@ -47,13 +47,53 @@ class _DashboardPageState extends ConsumerState<DashboardPage> {
 
     return Scaffold(
       drawer: const _AppDrawer(),
-      body: PageView(
-        controller: _pageController,
-        physics: const NeverScrollableScrollPhysics(), // Keep bottom nav taps clean
-        children: const [
-          HomeTab(),
-          DiscoverTab(),
-          OttReleasesPage(),
+      body: Stack(
+        children: [
+          // Background Blob 1: Top-Right Orange Glow
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 350,
+              height: 350,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.orange.withOpacity(0.05),
+                    Colors.orange.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          // Background Blob 2: Bottom-Left Amber Glow
+          Positioned(
+            bottom: -50,
+            left: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.amber.withOpacity(0.04),
+                    Colors.amber.withOpacity(0.0),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          PageView(
+            controller: _pageController,
+            physics: const NeverScrollableScrollPhysics(), // Keep bottom nav taps clean
+            children: const [
+              HomeTab(),
+              DiscoverTab(),
+              OttReleasesPage(),
+            ],
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
