@@ -16,7 +16,7 @@ void main() async {
   // await FirestoreSeeder.importAllMalayalamMoviesFromTMDB();
 
   // Clear existing collections and seed new ones.
-  await FirestoreSeeder.clearAndSeedCollections();
+  // await FirestoreSeeder.clearAndSeedCollections();
   
   // Initialize Hive, etc. here later
   
