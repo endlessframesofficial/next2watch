@@ -4,13 +4,47 @@ import '../../../../core/widgets/movie_card.dart';
 import '../../domain/entities/movie_collection.dart';
 import '../providers/home_providers.dart';
 
-class CollectionDetailsPage extends ConsumerWidget {
+class CollectionDetailsPage extends ConsumerStatefulWidget {
   final MovieCollection collection;
 
   const CollectionDetailsPage({
     super.key,
     required this.collection,
   });
+
+  @override
+  ConsumerState<CollectionDetailsPage> createState() => _CollectionDetailsPageState();
+}
+
+class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
+  late ScrollController _scrollController;
+  bool _isCollapsed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.hasClients) {
+      final offset = _scrollController.offset;
+      final isCollapsed = offset > (240 - kToolbarHeight - MediaQuery.of(context).padding.top);
+      if (isCollapsed != _isCollapsed) {
+        setState(() {
+          _isCollapsed = isCollapsed;
+        });
+      }
+    }
+  }
 
   Widget _buildFallbackBackground(BuildContext context) {
     return Container(
@@ -30,45 +64,61 @@ class CollectionDetailsPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final moviesAsync = ref.watch(collectionMoviesProvider(collection.movieIds));
+  Widget build(BuildContext context) {
+    final moviesAsync = ref.watch(collectionMoviesProvider(widget.collection.movieIds));
 
     return Scaffold(
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             expandedHeight: 240.0,
             pinned: true,
             stretch: true,
-            iconTheme: const IconThemeData(color: Colors.white),
+            iconTheme: IconThemeData(
+              color: _isCollapsed
+                  ? Theme.of(context).colorScheme.onSurface
+                  : Colors.white,
+            ),
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            elevation: 0,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                collection.title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  shadows: [
-                    Shadow(
-                      offset: Offset(0, 1),
-                      blurRadius: 6.0,
-                      color: Colors.black87,
+            elevation: _isCollapsed ? 1 : 0,
+            title: _isCollapsed
+                ? Text(
+                    widget.collection.title,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
-                  ],
-                ),
-              ),
+                  )
+                : null,
+            flexibleSpace: FlexibleSpaceBar(
+              title: _isCollapsed
+                  ? null
+                  : Text(
+                      widget.collection.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(0, 1),
+                            blurRadius: 6.0,
+                            color: Colors.black87,
+                          ),
+                        ],
+                      ),
+                    ),
               centerTitle: false,
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16, right: 48),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  if (collection.banner.isNotEmpty)
+                  if (widget.collection.banner.isNotEmpty)
                     Hero(
-                      tag: 'collection_banner_${collection.id}',
+                      tag: 'collection_banner_${widget.collection.id}',
                       child: Image.network(
-                        collection.banner,
+                        widget.collection.banner,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             _buildFallbackBackground(context),
@@ -76,7 +126,7 @@ class CollectionDetailsPage extends ConsumerWidget {
                     )
                   else
                     Hero(
-                      tag: 'collection_banner_${collection.id}',
+                      tag: 'collection_banner_${widget.collection.id}',
                       child: _buildFallbackBackground(context),
                     ),
                   // Dark gradient overlay for text and leading icon readability
