@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/router/route_names.dart';
@@ -13,58 +12,62 @@ class SplashPage extends StatefulWidget {
 class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _logoScale;
-  late Animation<double> _logoOpacity;
-  late Animation<double> _textOpacity;
-  late Animation<double> _textSlide;
-  late Animation<double> _bgScale;
+  late Animation<double> _logoResolve; // Fading from flipping posters to solid deep orange-red
+  late Animation<double> _subTitleFade; // Subtitle "INDEPENDENT" slide & fade
+  late Animation<double> _bgThemeFade; // Screen background from dark to light
+
+  // Cinematic masterpiece poster URLs (curated movie-related placeholders)
+  final List<String> _posterUrls = [
+    'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400&fit=crop', // Cinema camera
+    'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=400&fit=crop', // Theater seats
+    'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?w=400&fit=crop', // Projector
+    'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=400&fit=crop', // Lens
+    'https://images.unsplash.com/photo-1542204172-e7052809a86e?w=400&fit=crop', // Movie reel
+    'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400&fit=crop', // Clapboard
+    'https://images.unsplash.com/photo-1505686994434-e3cc5abf1330?w=400&fit=crop', // Popcorn
+    'https://images.unsplash.com/photo-1598899134739-24c46f58b8c0?w=400&fit=crop', // Retro cinema
+  ];
 
   @override
   void initState() {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 2200),
+      duration: const Duration(milliseconds: 2600),
     );
 
-    _bgScale = Tween<double>(begin: 0.6, end: 1.3).animate(
+    _logoScale = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 1.0, curve: Curves.easeOutSine),
+        curve: const Interval(0.0, 0.6, curve: Curves.easeOutBack),
       ),
     );
 
-    _logoScale = Tween<double>(begin: 0.3, end: 1.0).animate(
+    _logoResolve = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.4, curve: Curves.easeOutBack),
+        curve: const Interval(0.5, 0.8, curve: Curves.easeInOut),
       ),
     );
 
-    _logoOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _subTitleFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.0, 0.3, curve: Curves.easeIn),
+        curve: const Interval(0.7, 0.95, curve: Curves.easeOut),
       ),
     );
 
-    _textOpacity = Tween<double>(begin: 0.0, end: 1.0).animate(
+    _bgThemeFade = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: const Interval(0.3, 0.7, curve: Curves.easeIn),
+        curve: const Interval(0.75, 1.0, curve: Curves.easeInOut),
       ),
     );
 
-    _textSlide = Tween<double>(begin: 30.0, end: 0.0).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.3, 0.7, curve: Curves.easeOutCubic),
-      ),
-    );
-
-    // Start the animation sequence
+    // Start the intro animation
     _controller.forward();
 
-    // Auto-navigate to dashboard on animation completion
+    // Navigate to dashboard on completion
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         context.go(RoutePaths.dashboard);
@@ -83,181 +86,146 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
     final theme = Theme.of(context);
     final size = MediaQuery.of(context).size;
 
-    return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // Background Blob 1: Top-Right Warm Orange
-          Positioned(
-            top: -size.height * 0.25,
-            right: -size.width * 0.25,
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        // Smoothly transition background from Cinema Black to Scaffold Light Theme
+        final bgColor = Color.lerp(
+          const Color(0xFF070B14),
+          theme.scaffoldBackgroundColor,
+          _bgThemeFade.value,
+        )!;
+
+        // Rapidly cycle indices for poster frames (12 frames per second during intro)
+        final int frameIndex = (_controller.value * 28).floor() % _posterUrls.length;
+        final currentPoster = _posterUrls[frameIndex];
+
+        return Scaffold(
+          backgroundColor: bgColor,
+          body: Center(
             child: ScaleTransition(
-              scale: _bgScale,
-              child: Container(
-                width: size.width * 0.9,
-                height: size.width * 0.9,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.orange.withOpacity(0.12),
-                      Colors.orange.withOpacity(0.0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Background Blob 2: Bottom-Left Warm Gold
-          Positioned(
-            bottom: -size.height * 0.2,
-            left: -size.width * 0.2,
-            child: ScaleTransition(
-              scale: _bgScale,
-              child: Container(
-                width: size.width * 0.8,
-                height: size.width * 0.8,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Colors.amber.withOpacity(0.08),
-                      Colors.amber.withOpacity(0.0),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Pulsing Logo Box Glow Stack
-                FadeTransition(
-                  opacity: _logoOpacity,
-                  child: ScaleTransition(
-                    scale: _logoScale,
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        // Soft breathing outer glow
-                        AnimatedBuilder(
-                          animation: _controller,
-                          builder: (context, child) {
-                            final double pulse = 1.0 + 0.12 * math.sin(_controller.value * math.pi * 3);
-                            return Transform.scale(
-                              scale: pulse,
-                              child: Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.orange.withOpacity(0.15),
-                                      blurRadius: 30,
-                                      spreadRadius: 8,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        // App Icon / Logo Box
-                        Container(
-                          width: 84,
-                          height: 84,
-                          decoration: BoxDecoration(
-                            color: Colors.orange,
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.orange.withOpacity(0.25),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: const Icon(
-                            Icons.movie_filter_rounded,
-                            color: Colors.white,
-                            size: 44,
-                          ),
+              scale: _logoScale,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // MARVEL style "NEXT2WATCH" Main Box
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      borderRadius: BorderRadius.circular(4),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.3 * (1.0 - _bgThemeFade.value) + 0.1 * _bgThemeFade.value),
+                          blurRadius: 25,
+                          offset: const Offset(0, 10),
                         ),
                       ],
                     ),
-                  ),
-                ),
-                const SizedBox(height: 28),
-                // App Title & Tagline with slide up and fade transitions
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (context, child) {
-                    return Transform.translate(
-                      offset: Offset(0, _textSlide.value),
-                      child: Opacity(
-                        opacity: _textOpacity.value,
-                        child: child,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          // 1. Rapidly Flipping Cinematic Background Images
+                          Positioned.fill(
+                            child: Image.network(
+                              currentPoster,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) => Container(
+                                color: Colors.grey[900],
+                                child: const Icon(
+                                  Icons.movie_creation_outlined,
+                                  color: Colors.white24,
+                                  size: 40,
+                                ),
+                              ),
+                            ),
+                          ),
+                          // 2. Dark overlay for image contrast
+                          Positioned.fill(
+                            child: Container(
+                              color: Colors.black.withOpacity(0.35),
+                            ),
+                          ),
+                          // 3. Fading Solid Deep Orange-Red Overlay (The Logo Resolving phase)
+                          Positioned.fill(
+                            child: Opacity(
+                              opacity: _logoResolve.value,
+                              child: Container(
+                                color: const Color(0xFFE65100), // Deep Marvel-style brand orange-red
+                              ),
+                            ),
+                          ),
+                          // 4. White Bold Capital Text Overlay
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                            child: Text(
+                              'NEXT2WATCH',
+                              style: TextStyle(
+                                fontSize: 40,
+                                fontWeight: FontWeight.w900,
+                                color: Colors.white,
+                                letterSpacing: -1.5,
+                                fontFamily: theme.textTheme.titleLarge?.fontFamily,
+                                shadows: [
+                                  Shadow(
+                                    offset: const Offset(0, 2),
+                                    blurRadius: 4,
+                                    color: Colors.black.withOpacity(0.4),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                  child: Column(
-                    children: [
-                      // Metallic Warm Gold-Orange Gradient Title
-                      ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            Colors.orange[900]!,
-                            Colors.orange[600]!,
-                            Colors.amber[700]!,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // MARVEL style "STUDIOS" (INDEPENDENT) Subtitle layout
+                  Opacity(
+                    opacity: _subTitleFade.value,
+                    child: Transform.translate(
+                      offset: Offset(0, 15 * (1.0 - _subTitleFade.value)),
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 24),
+                        width: size.width * 0.72,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              height: 1.5,
+                              color: const Color(0xFFFFB300), // Gold line
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 4.0),
+                              child: Text(
+                                'I N D E P E N D E N T',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFFFFB300), // Gold text
+                                  letterSpacing: 3.5,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 1.5,
+                              color: const Color(0xFFFFB300), // Gold line
+                            ),
                           ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ).createShader(bounds),
-                        child: const Text(
-                          'Next2Watch',
-                          style: TextStyle(
-                            fontSize: 34,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white, // Required for ShaderMask overlay
-                            letterSpacing: 1.5,
-                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      // Core Philosophy Tagline Capsule Badge
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: Colors.orange.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(30),
-                          border: Border.all(
-                            color: Colors.orange.withOpacity(0.2),
-                            width: 1.2,
-                          ),
-                        ),
-                        child: Text(
-                          'INDEPENDENT CURATION • ZERO ALGORITHMS',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange[800] ?? Colors.orange,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
