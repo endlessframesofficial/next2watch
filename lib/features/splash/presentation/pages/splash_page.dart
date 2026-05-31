@@ -233,34 +233,52 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                     opacity: _subTitleFade.value,
                     child: Transform.translate(
                       offset: Offset(0, 15 * (1.0 - _subTitleFade.value)),
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 24),
-                        width: size.width * 0.72,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              height: 1.5,
-                              color: const Color(0xFFFFB300), // Gold line
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 4.0),
-                              child: Text(
-                                'I N D E P E N D E N T',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFFFB300), // Gold text
-                                  letterSpacing: 3.5,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 24),
+                            width: size.width * 0.85,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  height: 1.5,
+                                  color: const Color(0xFFFFB300), // Gold line
                                 ),
-                              ),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 4.0),
+                                  child: Text(
+                                    'I N D E P E N D E N T   C I N E M A   J O U R N A L',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFFFB300), // Gold text
+                                      letterSpacing: 1.8,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  height: 1.5,
+                                  color: const Color(0xFFFFB300), // Gold line
+                                ),
+                              ],
                             ),
-                            Container(
-                              height: 1.5,
-                              color: const Color(0xFFFFB300), // Gold line
+                          ),
+                          const SizedBox(height: 24),
+                          // Custom Tagline for Malayalam Movie Lovers
+                          Text(
+                            'Malayalam Cinema • Curated by a Movie Lover',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.orange[800] ?? Colors.orange,
+                              letterSpacing: 0.5,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
