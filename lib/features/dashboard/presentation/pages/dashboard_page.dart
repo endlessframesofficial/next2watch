@@ -16,13 +16,13 @@ class DashboardPage extends ConsumerWidget {
     final currentIndex = ref.watch(dashboardIndexProvider);
 
     return Scaffold(
+      drawer: const _AppDrawer(),
       body: IndexedStack(
         index: currentIndex,
         children: const [
           HomeTab(),
           DiscoverTab(),
           OttReleasesPage(),
-
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -45,8 +45,130 @@ class DashboardPage extends ConsumerWidget {
             icon: Icon(Icons.tv),
             label: 'OTT',
           ),
-
         ],
+      ),
+    );
+  }
+}
+
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      backgroundColor: const Color(0xFF0F172A),
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Header Profile Card
+            Container(
+              padding: const EdgeInsets.all(24.0),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.white.withOpacity(0.08),
+                  ),
+                ),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 36,
+                    backgroundColor: Colors.orange.withOpacity(0.15),
+                    child: const Icon(
+                      Icons.movie_creation_rounded,
+                      color: Colors.orange,
+                      size: 36,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Next2Watch',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Independent Cinema Journal',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.orange.shade400,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Philosophy / About Section
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'THE MISSION',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.4),
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Next2Watch is an independent curation platform born out of a pure passion for cinema. We believe that discoverability shouldn\'t be defined by complex rating algorithms, bots, or commercial agendas. Every collection is meticulously hand-curated to offer a human perspective in an algorithm-dominated world.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.8),
+                        height: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Text(
+                      'WHY INDEPENDENT?',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white.withOpacity(0.4),
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Modern algorithms feed you generic recommendations based on data points and promotional budgets. We focus strictly on genuine cinematic value. By offering independent reviews and expert curation, Next2Watch connects movie lovers with movies that truly matter.',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.white.withOpacity(0.8),
+                        height: 1.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Footer branding
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Center(
+                child: Text(
+                  'v1.0.0 • Pure Movie Passion',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.white.withOpacity(0.3),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

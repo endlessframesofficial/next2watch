@@ -5,6 +5,7 @@ import '../../../../core/router/route_names.dart';
 import '../../../../core/widgets/movie_card.dart';
 import '../../domain/entities/movie_collection.dart';
 import '../providers/home_providers.dart';
+import '../widgets/curator_note_banner.dart';
 
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
@@ -42,6 +43,10 @@ class HomeTab extends ConsumerWidget {
             pinned: true,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
             title: Text(
               'Next2Watch',
               style: TextStyle(
@@ -51,6 +56,9 @@ class HomeTab extends ConsumerWidget {
               ),
             ),
             centerTitle: false,
+          ),
+          const SliverToBoxAdapter(
+            child: CuratorNoteBanner(),
           ),
           collectionsAsync.when(
             data: (collections) {

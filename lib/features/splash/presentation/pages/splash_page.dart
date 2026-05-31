@@ -100,11 +100,11 @@ class _SplashPageState extends State<SplashPage> {
                   const SizedBox(height: 12),
                   // Core Philosophy Tagline
                   Text(
-                    'Mollywood, curated. No rating bias.',
+                    'Independent Curation. Zero Algorithms.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w600,
                       color: Colors.orange.shade400,
                       letterSpacing: 0.5,
                     ),

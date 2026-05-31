@@ -35,6 +35,10 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
             pinned: true,
             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             elevation: 0,
+            leading: IconButton(
+              icon: const Icon(Icons.menu),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+            ),
             title: Text(
               'Next2Watch',
               style: TextStyle(
