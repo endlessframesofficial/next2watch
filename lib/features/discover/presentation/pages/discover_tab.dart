@@ -16,11 +16,34 @@ class DiscoverTab extends ConsumerStatefulWidget {
 class _DiscoverTabState extends ConsumerState<DiscoverTab> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+  late ScrollController _scrollController;
+  double _scrollRatio = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
 
   @override
   void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.hasClients) {
+      final offset = _scrollController.offset;
+      final double ratio = (offset / 50.0).clamp(0.0, 1.0);
+      if (ratio != _scrollRatio) {
+        setState(() {
+          _scrollRatio = ratio;
+        });
+      }
+    }
   }
 
   @override
@@ -29,14 +52,20 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
 
     return Scaffold(
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Color.lerp(
+              Colors.transparent,
+              Theme.of(context).scaffoldBackgroundColor,
+              _scrollRatio,
+            ),
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.menu),
+              color: Theme.of(context).colorScheme.onSurface,
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
             title: Text(
@@ -48,6 +77,13 @@ class _DiscoverTabState extends ConsumerState<DiscoverTab> {
               ),
             ),
             centerTitle: false,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08 * _scrollRatio),
+                height: 1,
+              ),
+            ),
           ),
           SliverToBoxAdapter(
             child: Padding(

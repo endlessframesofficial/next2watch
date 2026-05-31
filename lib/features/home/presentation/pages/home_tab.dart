@@ -7,44 +7,64 @@ import '../../domain/entities/movie_collection.dart';
 import '../providers/home_providers.dart';
 import '../widgets/curator_note_banner.dart';
 
-class HomeTab extends ConsumerWidget {
+class HomeTab extends ConsumerStatefulWidget {
   const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeTab> createState() => _HomeTabState();
+}
+
+class _HomeTabState extends ConsumerState<HomeTab> {
+  late ScrollController _scrollController;
+  double _scrollRatio = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.hasClients) {
+      final offset = _scrollController.offset;
+      final double ratio = (offset / 50.0).clamp(0.0, 1.0);
+      if (ratio != _scrollRatio) {
+        setState(() {
+          _scrollRatio = ratio;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final collectionsAsync = ref.watch(firestoreCollectionsProvider);
 
     return Scaffold(
       backgroundColor: Colors.transparent, // Inherits from dashboard
-      // floatingActionButton: Column(
-      //   mainAxisAlignment: MainAxisAlignment.end,
-      //   children: [
-      //     FloatingActionButton.extended(
-      //       heroTag: 'addCollection',
-      //       onPressed: () => context.push(RoutePaths.addCollection),
-      //       backgroundColor: Colors.blueAccent,
-      //       icon: const Icon(Icons.playlist_add),
-      //       label: const Text('Add Collection'),
-      //     ),
-      //     const SizedBox(height: 16),
-      //     FloatingActionButton.extended(
-      //       heroTag: 'addMovie',
-      //       onPressed: () => context.push(RoutePaths.addMovie),
-      //       backgroundColor: Colors.orange,
-      //       icon: const Icon(Icons.movie),
-      //       label: const Text('Add Movie'),
-      //     ),
-      //   ],
-      // ),
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Color.lerp(
+              Colors.transparent,
+              Theme.of(context).scaffoldBackgroundColor,
+              _scrollRatio,
+            ),
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.menu),
+              color: Theme.of(context).colorScheme.onSurface,
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
             title: Text(
@@ -56,6 +76,13 @@ class HomeTab extends ConsumerWidget {
               ),
             ),
             centerTitle: false,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08 * _scrollRatio),
+                height: 1,
+              ),
+            ),
           ),
           const SliverToBoxAdapter(
             child: CuratorNoteBanner(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/widgets/movie_card.dart';
 import '../../domain/entities/movie_collection.dart';
@@ -18,7 +19,7 @@ class CollectionDetailsPage extends ConsumerStatefulWidget {
 
 class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
   late ScrollController _scrollController;
-  bool _isCollapsed = false;
+  double _scrollRatio = 0.0;
 
   @override
   void initState() {
@@ -37,10 +38,12 @@ class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
   void _scrollListener() {
     if (_scrollController.hasClients) {
       final offset = _scrollController.offset;
-      final isCollapsed = offset > (240 - kToolbarHeight - MediaQuery.of(context).padding.top);
-      if (isCollapsed != _isCollapsed) {
+      final double statusBarHeight = MediaQuery.of(context).padding.top;
+      final double maxOffset = 240.0 - kToolbarHeight - statusBarHeight;
+      final double ratio = (offset / (maxOffset > 0 ? maxOffset : 1.0)).clamp(0.0, 1.0);
+      if (ratio != _scrollRatio) {
         setState(() {
-          _isCollapsed = isCollapsed;
+          _scrollRatio = ratio;
         });
       }
     }
@@ -66,6 +69,7 @@ class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final moviesAsync = ref.watch(collectionMoviesProvider(widget.collection.movieIds));
+    final titleOpacity = (_scrollRatio > 0.6) ? ((_scrollRatio - 0.6) / 0.4) : 0.0;
 
     return Scaffold(
       body: CustomScrollView(
@@ -76,41 +80,54 @@ class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
             expandedHeight: 240.0,
             pinned: true,
             stretch: true,
-            iconTheme: IconThemeData(
-              color: _isCollapsed
-                  ? Theme.of(context).colorScheme.onSurface
-                  : Colors.white,
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: _scrollRatio > 0.5
+                  ? (Theme.of(context).brightness == Brightness.dark ? Brightness.light : Brightness.dark)
+                  : Brightness.light,
+              statusBarBrightness: _scrollRatio > 0.5
+                  ? (Theme.of(context).brightness == Brightness.dark ? Brightness.dark : Brightness.light)
+                  : Brightness.dark,
             ),
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-            elevation: _isCollapsed ? 1 : 0,
-            title: _isCollapsed
-                ? Text(
-                    widget.collection.title,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: IconButton(
+                onPressed: () => Navigator.of(context).pop(),
+                icon: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.3 * (1.0 - _scrollRatio)),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.arrow_back_ios_new,
+                    size: 16,
+                    color: Color.lerp(
+                      Colors.white,
+                      Theme.of(context).colorScheme.onSurface,
+                      _scrollRatio,
                     ),
-                  )
-                : null,
+                  ),
+                ),
+              ),
+            ),
+            backgroundColor: Color.lerp(
+              Colors.transparent,
+              Theme.of(context).scaffoldBackgroundColor,
+              _scrollRatio,
+            ),
+            elevation: _scrollRatio > 0.9 ? 1 : 0,
+            title: Opacity(
+              opacity: titleOpacity,
+              child: Text(
+                widget.collection.title,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
             flexibleSpace: FlexibleSpaceBar(
-              title: _isCollapsed
-                  ? null
-                  : Text(
-                      widget.collection.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        shadows: [
-                          Shadow(
-                            offset: Offset(0, 1),
-                            blurRadius: 6.0,
-                            color: Colors.black87,
-                          ),
-                        ],
-                      ),
-                    ),
-              centerTitle: false,
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16, right: 48),
               background: Stack(
                 fit: StackFit.expand,
                 children: [
@@ -141,6 +158,70 @@ class _CollectionDetailsPageState extends ConsumerState<CollectionDetailsPage> {
                           Colors.black.withOpacity(0.8),
                         ],
                         stops: const [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
+                  // Custom Positioned large title layout
+                  Positioned(
+                    left: 16,
+                    right: 16,
+                    bottom: 16,
+                    child: Opacity(
+                      opacity: (1.0 - _scrollRatio).clamp(0.0, 1.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.withOpacity(0.85),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'COLLECTION',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            widget.collection.title,
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w900,
+                              color: Colors.white,
+                              letterSpacing: -0.5,
+                              shadows: [
+                                Shadow(
+                                  offset: Offset(0, 2),
+                                  blurRadius: 8.0,
+                                  color: Colors.black87,
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '${widget.collection.movieIds.length} Human-Curated Titles',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white.withOpacity(0.9),
+                              shadows: const [
+                                Shadow(
+                                  offset: Offset(0, 1),
+                                  blurRadius: 4.0,
+                                  color: Colors.black87,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

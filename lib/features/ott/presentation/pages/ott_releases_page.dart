@@ -42,23 +42,63 @@ final ottReleasesProvider = StreamProvider.autoDispose<List<OTTRelease>>((ref) {
   });
 });
 
-class OttReleasesPage extends ConsumerWidget {
+class OttReleasesPage extends ConsumerStatefulWidget {
   const OttReleasesPage({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<OttReleasesPage> createState() => _OttReleasesPageState();
+}
+
+class _OttReleasesPageState extends ConsumerState<OttReleasesPage> {
+  late ScrollController _scrollController;
+  double _scrollRatio = 0.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.hasClients) {
+      final offset = _scrollController.offset;
+      final double ratio = (offset / 50.0).clamp(0.0, 1.0);
+      if (ratio != _scrollRatio) {
+        setState(() {
+          _scrollRatio = ratio;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final asyncOtt = ref.watch(ottReleasesProvider);
 
     return Scaffold(
       body: CustomScrollView(
+        controller: _scrollController,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
             pinned: true,
-            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            backgroundColor: Color.lerp(
+              Colors.transparent,
+              Theme.of(context).scaffoldBackgroundColor,
+              _scrollRatio,
+            ),
             elevation: 0,
             leading: IconButton(
               icon: const Icon(Icons.menu),
+              color: Theme.of(context).colorScheme.onSurface,
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
             title: Text(
@@ -70,6 +110,13 @@ class OttReleasesPage extends ConsumerWidget {
               ),
             ),
             centerTitle: false,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(1),
+              child: Container(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.08 * _scrollRatio),
+                height: 1,
+              ),
+            ),
           ),
           SliverToBoxAdapter(
             child: Padding(
