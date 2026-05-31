@@ -16,9 +16,6 @@ class DashboardPage extends ConsumerWidget {
     final currentIndex = ref.watch(dashboardIndexProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Next2Watch'),
-      ),
       body: IndexedStack(
         index: currentIndex,
         children: const [

@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/router/route_names.dart';
 import '../../../../core/widgets/movie_card.dart';
 import '../../domain/entities/movie_collection.dart';
-import '../../domain/entities/movie.dart';
 import '../providers/home_providers.dart';
 
 class HomeTab extends ConsumerWidget {
@@ -36,41 +35,69 @@ class HomeTab extends ConsumerWidget {
       //     ),
       //   ],
       // ),
-      body: collectionsAsync.when(
-        data: (collections) {
-          if (collections.isEmpty) {
-            return const Center(
-              child: Text(
-                'No collections found.\nUse the action buttons below to add collections or trigger the seeder!',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            elevation: 0,
+            title: Text(
+              'Next2Watch',
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.5,
+                color: Colors.orange[800] ?? Colors.orange,
               ),
-            );
-          }
+            ),
+            centerTitle: false,
+          ),
+          collectionsAsync.when(
+            data: (collections) {
+              if (collections.isEmpty) {
+                return const SliverFillRemaining(
+                  child: Center(
+                    child: Text(
+                      'No collections found.\nUse the action buttons below to add collections or trigger the seeder!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                  ),
+                );
+              }
 
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 16.0),
-            physics: const BouncingScrollPhysics(),
-            itemCount: collections.length,
-            itemBuilder: (context, index) {
-              final collection = collections[index];
-              return _CollectionRow(collection: collection);
+              return SliverPadding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final collection = collections[index];
+                      return _CollectionRow(collection: collection);
+                    },
+                    childCount: collections.length,
+                  ),
+                ),
+              );
             },
-          );
-        },
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: Colors.orange),
-        ),
-        error: (error, stack) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Error loading collections:\n$error',
-              textAlign: TextAlign.center,
-              style: const TextStyle(color: Colors.redAccent),
+            loading: () => const SliverFillRemaining(
+              child: Center(
+                child: CircularProgressIndicator(color: Colors.orange),
+              ),
+            ),
+            error: (error, stack) => SliverFillRemaining(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Error loading collections:\n$error',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: Colors.redAccent),
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
