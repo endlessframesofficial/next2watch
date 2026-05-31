@@ -39,8 +39,7 @@ class _SplashPageState extends State<SplashPage> {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      // Clean slate/dark theme background
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         fit: StackFit.expand,
         children: [
@@ -53,7 +52,7 @@ class _SplashPageState extends State<SplashPage> {
               height: size.width * 0.8,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.orange.withOpacity(0.04),
+                color: Colors.orange.withOpacity(0.08),
               ),
             ),
           ),
@@ -74,7 +73,7 @@ class _SplashPageState extends State<SplashPage> {
                       borderRadius: BorderRadius.circular(24),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.orange.withOpacity(0.3),
+                          color: Colors.orange.withOpacity(0.25),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -87,13 +86,13 @@ class _SplashPageState extends State<SplashPage> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  // App Title (Premium Gold Gradient look)
-                  const Text(
+                  // App Title (High-contrast theme style)
+                  Text(
                     'Next2Watch',
                     style: TextStyle(
                       fontSize: 32,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: theme.colorScheme.onSurface,
                       letterSpacing: 1.5,
                     ),
                   ),
@@ -105,7 +104,7 @@ class _SplashPageState extends State<SplashPage> {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
-                      color: Colors.orange.shade400,
+                      color: Colors.orange[800] ?? Colors.orange,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -124,7 +123,7 @@ class _SplashPageState extends State<SplashPage> {
                 height: 24,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  color: Colors.orange.shade400,
+                  color: Colors.orange[800] ?? Colors.orange,
                 ),
               ),
             ),

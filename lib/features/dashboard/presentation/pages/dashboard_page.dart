@@ -87,8 +87,11 @@ class _AppDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final onSurface = theme.colorScheme.onSurface;
+
     return Drawer(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: theme.scaffoldBackgroundColor,
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -99,7 +102,7 @@ class _AppDrawer extends StatelessWidget {
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
-                    color: Colors.white.withOpacity(0.08),
+                    color: onSurface.withOpacity(0.08),
                   ),
                 ),
               ),
@@ -108,7 +111,7 @@ class _AppDrawer extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 36,
-                    backgroundColor: Colors.orange.withOpacity(0.15),
+                    backgroundColor: Colors.orange.withOpacity(0.1),
                     child: const Icon(
                       Icons.movie_creation_rounded,
                       color: Colors.orange,
@@ -116,12 +119,12 @@ class _AppDrawer extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Next2Watch',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.w900,
-                      color: Colors.white,
+                      color: onSurface,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -131,7 +134,7 @@ class _AppDrawer extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
-                      color: Colors.orange.shade400,
+                      color: Colors.orange[800] ?? Colors.orange,
                     ),
                   ),
                 ],
@@ -149,7 +152,7 @@ class _AppDrawer extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white.withOpacity(0.4),
+                        color: onSurface.withOpacity(0.4),
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -158,7 +161,7 @@ class _AppDrawer extends StatelessWidget {
                       'Next2Watch is an independent curation platform born out of a pure passion for cinema. We believe that discoverability shouldn\'t be defined by complex rating algorithms, bots, or commercial agendas. Every collection is meticulously hand-curated to offer a human perspective in an algorithm-dominated world.',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: onSurface.withOpacity(0.8),
                         height: 1.5,
                       ),
                     ),
@@ -168,7 +171,7 @@ class _AppDrawer extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white.withOpacity(0.4),
+                        color: onSurface.withOpacity(0.4),
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -177,7 +180,7 @@ class _AppDrawer extends StatelessWidget {
                       'Modern algorithms feed you generic recommendations based on data points and promotional budgets. We focus strictly on genuine cinematic value. By offering independent reviews and expert curation, Next2Watch connects movie lovers with movies that truly matter.',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Colors.white.withOpacity(0.8),
+                        color: onSurface.withOpacity(0.8),
                         height: 1.5,
                       ),
                     ),
@@ -193,7 +196,7 @@ class _AppDrawer extends StatelessWidget {
                   'v1.0.0 • Pure Movie Passion',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.3),
+                    color: onSurface.withOpacity(0.3),
                   ),
                 ),
               ),
