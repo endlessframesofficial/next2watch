@@ -119,14 +119,39 @@ class _AppDrawer extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  Text(
-                    'Next2Watch',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.w900,
-                      color: onSurface,
-                      letterSpacing: 0.5,
-                    ),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Next',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: onSurface,
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Transform.rotate(
+                        angle: -10 * 3.141592653589793 / 180, // Tilted -10 degrees
+                        child: Text(
+                          '2',
+                          style: TextStyle(
+                            fontSize: 28, // Slightly dominant size
+                            fontWeight: FontWeight.w900,
+                            color: Colors.orange[800] ?? Colors.orange,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 2),
+                      Text(
+                        'Watch',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w900,
+                          color: onSurface,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 4),
                   Text(

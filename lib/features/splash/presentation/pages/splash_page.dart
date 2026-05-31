@@ -158,25 +158,69 @@ class _SplashPageState extends State<SplashPage> with SingleTickerProviderStateM
                               ),
                             ),
                           ),
-                          // 4. White Bold Capital Text Overlay
+                          // 4. White Bold Capital Text Overlay (Custom tilted 2 character)
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                            child: Text(
-                              'NEXT2WATCH',
-                              style: TextStyle(
-                                fontSize: 40,
-                                fontWeight: FontWeight.w900,
-                                color: Colors.white,
-                                letterSpacing: -1.5,
-                                fontFamily: theme.textTheme.titleLarge?.fontFamily,
-                                shadows: [
-                                  Shadow(
-                                    offset: const Offset(0, 2),
-                                    blurRadius: 4,
-                                    color: Colors.black.withOpacity(0.4),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'NEXT',
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                    letterSpacing: -1.5,
+                                    fontFamily: theme.textTheme.titleLarge?.fontFamily,
+                                    shadows: [
+                                      Shadow(
+                                        offset: const Offset(0, 2),
+                                        blurRadius: 4,
+                                        color: Colors.black.withOpacity(0.4),
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(width: 4),
+                                Transform.rotate(
+                                  angle: -10 * 3.141592653589793 / 180, // Tilted -10 degrees
+                                  child: Text(
+                                    '2',
+                                    style: TextStyle(
+                                      fontSize: 46, // Slightly larger for emphasis
+                                      fontWeight: FontWeight.w900,
+                                      color: Colors.white,
+                                      fontFamily: theme.textTheme.titleLarge?.fontFamily,
+                                      shadows: [
+                                        Shadow(
+                                          offset: const Offset(0, 2),
+                                          blurRadius: 4,
+                                          color: Colors.black.withOpacity(0.4),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  'WATCH',
+                                  style: TextStyle(
+                                    fontSize: 40,
+                                    fontWeight: FontWeight.w900,
+                                    color: Colors.white,
+                                    letterSpacing: -1.5,
+                                    fontFamily: theme.textTheme.titleLarge?.fontFamily,
+                                    shadows: [
+                                      Shadow(
+                                        offset: const Offset(0, 2),
+                                        blurRadius: 4,
+                                        color: Colors.black.withOpacity(0.4),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
